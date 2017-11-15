@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>KEVM Verification &mdash; The EVM Jello Paper 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex/"/>
+        <link rel="search" title="Search" href="../search/"/>
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/>
+        <link rel="next" title="EVM Words" href="../data/"/>
+        <link rel="prev" title="Ethereum Simulations" href="../ethereum/"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../" class="icon icon-home"> The EVM Jello Paper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../evm/">EVM Execution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-programs">EVM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#precompiled-contracts">Precompiled Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-program-representations">EVM Program Representations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">KEVM Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sum-to-n">Sum to N</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hacker-gold-hkg-token-smart-contract">Hacker Gold (HKG) Token Smart Contract</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data/">EVM Words</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#data-structures">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#parsing-unparsing">Parsing/Unparsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/">Analysis Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">The EVM Jello Paper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../">Docs</a> &raquo;</li>
+        
+      <li>KEVM Verification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/verification.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kevm-verification">
+<h1>KEVM Verification<a class="headerlink" href="#kevm-verification" title="Permalink to this headline">¶</a></h1>
+<p>Using K’s reachability logic theorem prover, we’re able to verify many
+properties about EVM programs as reachability claims. This module
+defines some helpers which make writing specifications simpler.</p>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="nv">requires</span><span class="w"> </span><span class="s">&quot;evm.k&quot;</span><span class="w"></span>
+
+<span class="nv">module</span><span class="w"> </span><span class="nv">VERIFICATION</span><span class="w"></span>
+<span class="w">    </span><span class="nv">imports</span><span class="w"> </span><span class="nv">EVM</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This <code class="docutils literal"><span class="pre">smt-lemma</span></code> helps Z3 reason about stack over/under flow.</p>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="kd">rule</span><span class="w"> </span><span class="nv">#sizeWordStack</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="o">=</span><span class="nv">Int</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">true</span><span class="w"> </span><span class="p">[</span><span class="nv">smt</span><span class="err">-</span><span class="nv">lemma</span><span class="p">]</span><span class="w"></span>
+<span class="kd">rule</span><span class="w"> </span><span class="nv">#sizeWordStack</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nv">WS</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">:</span><span class="nv">Int</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#sizeWordStack</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nv">WS</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="err">+</span><span class="nv">Int</span><span class="w"> </span><span class="nv">N</span><span class="w"></span>
+<span class="w">  </span><span class="nv">requires</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="p">=/=</span><span class="nv">K</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="nv">lemma</span><span class="p">]</span><span class="w"></span>
+
+<span class="kd">rule</span><span class="w"> </span><span class="p">(</span><span class="nv">X</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">A</span><span class="p">)</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">B</span><span class="w">    </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">X</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="p">(</span><span class="nv">A</span><span class="w"> </span><span class="err">+</span><span class="nv">Int</span><span class="w"> </span><span class="nv">B</span><span class="p">)</span><span class="w">    </span><span class="p">[</span><span class="nv">smt</span><span class="err">-</span><span class="nv">lemma</span><span class="p">]</span><span class="w"></span>
+<span class="kd">rule</span><span class="w"> </span><span class="p">((</span><span class="nv">X</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">A</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="o">=</span><span class="nv">Int</span><span class="w"> </span><span class="nv">B</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nv">X</span><span class="w"> </span><span class="err">&gt;</span><span class="o">=</span><span class="nv">Int</span><span class="w"> </span><span class="p">(</span><span class="nv">A</span><span class="w"> </span><span class="err">+</span><span class="nv">Int</span><span class="w"> </span><span class="nv">B</span><span class="p">))</span><span class="w"> </span><span class="p">[</span><span class="nv">smt</span><span class="err">-</span><span class="nv">lemma</span><span class="p">]</span><span class="w"></span>
+<span class="kd">rule</span><span class="w"> </span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="err">+</span><span class="nv">Int</span><span class="w"> </span><span class="nv">X</span><span class="w"> </span><span class="err">&lt;</span><span class="nv">Int</span><span class="w"> </span><span class="nv">M</span><span class="p">)</span><span class="w">    </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">X</span><span class="w"> </span><span class="err">&lt;</span><span class="nv">Int</span><span class="w"> </span><span class="p">(</span><span class="nv">M</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">N</span><span class="p">)</span><span class="w">    </span><span class="p">[</span><span class="nv">smt</span><span class="err">-</span><span class="nv">lemma</span><span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="section" id="sum-to-n">
+<h2>Sum to N<a class="headerlink" href="#sum-to-n" title="Permalink to this headline">¶</a></h2>
+<p>As a demonstration of simple reachability claims involing a circularity,
+we prove the EVM <a class="reference external" href="proofs/sum-to-n.md">Sum to N</a> program correct. This
+program sums the numbers from 1 to N (for sufficiently small N),
+including pre-conditions dis-allowing integer under/overflow and stack
+overflow.</p>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Map</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;sumTo&quot;</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="c1">// ---------------------------------------------</span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nv">sumTo</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#asMapOpCodes</span><span class="p">(</span><span class="w"> </span><span class="nv">PUSH</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">PUSH</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)</span><span class="w">                </span><span class="c1">// s = 0 ; n = N</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">JUMPDEST</span><span class="w">                                </span><span class="c1">// label:loop</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">DUP</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">ISZERO</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">PUSH</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">52</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">JUMPI</span><span class="w">   </span><span class="c1">// if n == 0, jump to end</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">DUP</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">SWAP</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">ADD</span><span class="w">                  </span><span class="c1">// s = s + n</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">SWAP</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">PUSH</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">SWAP</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">SUB</span><span class="w">    </span><span class="c1">// n = n - 1</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">PUSH</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">35</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nv">JUMP</span><span class="w">                      </span><span class="c1">// jump to loop</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="nv">JUMPDEST</span><span class="w">                                </span><span class="c1">// label:end</span>
+<span class="w">                     </span><span class="p">;</span><span class="w"> </span><span class="p">.</span><span class="nv">OpCodes</span><span class="w"></span>
+<span class="w">                     </span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hacker-gold-hkg-token-smart-contract">
+<h2>Hacker Gold (HKG) Token Smart Contract<a class="headerlink" href="#hacker-gold-hkg-token-smart-contract" title="Permalink to this headline">¶</a></h2>
+<p>Several proofs about the <a class="reference external" href="proofs/hkg.md">HKG Token functions</a> have
+been performed. These helper constants make writing the proof claims
+simpler/cleaner.</p>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;%ACCT_1_BALANCE&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%ACCT_2_BALANCE&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%ACCT_1_ALLOWED&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%ACCT_2_ALLOWED&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%ACCT_ID&quot;</span><span class="w">        </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%CALLER_ID&quot;</span><span class="w">      </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%ORIGIN_ID&quot;</span><span class="w">      </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%COINBASE_VALUE&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ACCT_1_ALLOWED</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">90140393717854041204577419487481777019768054268415728047989462811209962694062</span><span class="w"> </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ACCT_2_BALANCE</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">7523342389551220067180060596052511116626922476768911452708464109912271601147</span><span class="w">  </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ACCT_1_BALANCE</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">73276140668783822097736045772311176946506324369098798920944620499663575949472</span><span class="w"> </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ACCT_2_ALLOWED</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">89883370637028415006891042932604780869171597379948077832163656920795299088269</span><span class="w"> </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ACCT_ID</span><span class="w">        </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">87579061662017136990230301793909925042452127430</span><span class="w">                               </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%CALLER_ID</span><span class="w">      </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">428365927726247537526132020791190998556166378203</span><span class="w">                              </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%ORIGIN_ID</span><span class="w">      </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">116727156174188091019688739584752390716576765452</span><span class="w">                              </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%COINBASE_VALUE</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">244687034288125203496486448490407391986876152250</span><span class="w">                              </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">WordStack</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;%HKG_ProgramBytes&quot;</span><span class="w">       </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                       </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%HKG_ProgramBytes_buggy&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Map</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;%HKG_Program&quot;</span><span class="w">       </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;%HKG_Program_buggy&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%HKG_ProgramBytes</span><span class="w">       </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#parseByteStack</span><span class="p">(</span><span class="s">&quot;0x60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063095ea7b31461006757806323b872dd146100be57806370a0823114610134578063a9059cbb1461017e578063dd62ed3e146101d5575bfe5b341561006f57fe5b6100a4600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061023e565b604051808215151515815260200191505060405180910390f35b34156100c657fe5b61011a600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610331565b604051808215151515815260200191505060405180910390f35b341561013c57fe5b610168600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506105b2565b6040518082815260200191505060405180910390f35b341561018657fe5b6101bb600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919080359060200190919050506105fc565b604051808215151515815260200191505060405180910390f35b34156101dd57fe5b610228600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff1690602001909190505061076a565b6040518082815260200191505060405180910390f35b600081600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a3600190505b92915050565b600081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054101580156103fe575081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410155b801561040a5750600082115b156105a15781600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254019250508190555081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825403925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190506105ab565b600090506105ab565b5b9392505050565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b919050565b600081600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015801561064d5750600082115b1561075a5781600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a360019050610764565b60009050610764565b5b92915050565b6000600260008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b929150505600a165627a7a72305820955d4848f79dc023af4f6c233535c5c8d39532ebe7e7b64adbd933112556edf30029&quot;</span><span class="p">)</span><span class="w">                 </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%HKG_ProgramBytes_buggy</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#parseByteStack</span><span class="p">(</span><span class="s">&quot;60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063095ea7b31461006a57806323b872dd146100c457806370a082311461013d578063a9059cbb1461018a578063dd62ed3e146101e4575b600080fd5b341561007557600080fd5b6100aa600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610250565b604051808215151515815260200191505060405180910390f35b34156100cf57600080fd5b610123600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610343565b604051808215151515815260200191505060405180910390f35b341561014857600080fd5b610174600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506105c4565b6040518082815260200191505060405180910390f35b341561019557600080fd5b6101ca600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061060e565b604051808215151515815260200191505060405180910390f35b34156101ef57600080fd5b61023a600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610773565b6040518082815260200191505060405180910390f35b600081600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a3600190505b92915050565b600081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158015610410575081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410155b801561041c5750600082115b156105b35781600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254019250508190555081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825403925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190506105bd565b600090506105bd565b5b9392505050565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b919050565b600081600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015801561065f5750600082115b156107635781600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905061076d565b6000905061076d565b5b92915050565b6000600260008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b929150505600a165627a7a7230582093e640afb442869193a08cf82ed9577e403c7c53a6a95f589e2b673195da102e0029&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="nv">macro</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%HKG_Program</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#asMapOpCodes</span><span class="p">(</span><span class="nv">#dasmOpCodes</span><span class="p">(</span><span class="nv">%HKG_ProgramBytes</span><span class="p">,</span><span class="w"> </span><span class="nv">DEFAULT</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nv">%HKG_Program_buggy</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#asMapOpCodes</span><span class="p">(</span><span class="nv">#dasmOpCodes</span><span class="p">(</span><span class="nv">%HKG_ProgramBytes_buggy</span><span class="p">,</span><span class="w"> </span><span class="nv">DEFAULT</span><span class="p">))</span><span class="w"></span>
+
+<span class="nv">endmodule</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../data/" class="btn btn-neutral float-right" title="EVM Words" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../ethereum/" class="btn btn-neutral" title="Ethereum Simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The KEVM Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

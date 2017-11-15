@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Analysis Tools &mdash; The EVM Jello Paper 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex/"/>
+        <link rel="search" title="Search" href="../search/"/>
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/>
+        <link rel="next" title="Cryptographic Primitives" href="../krypto/"/>
+        <link rel="prev" title="EVM Words" href="../data/"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../" class="icon icon-home"> The EVM Jello Paper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../evm/">EVM Execution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-programs">EVM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#precompiled-contracts">Precompiled Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-program-representations">EVM Program Representations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verification/">KEVM Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/">EVM Words</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#data-structures">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#parsing-unparsing">Parsing/Unparsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysis Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#gas-analysis">Gas Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">The EVM Jello Paper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../">Docs</a> &raquo;</li>
+        
+      <li>Analysis Tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/analysis.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="analysis-tools">
+<h1>Analysis Tools<a class="headerlink" href="#analysis-tools" title="Permalink to this headline">¶</a></h1>
+<p>Here, we define analysis tools specific to EVM. These tools are defined
+as extensions of the semantics, utilizing the underlying machinery to do
+execution. One benefit of K is that we do not have to re-specify
+properties about the operational behavior in our analysis tools; instead
+we can take the operational behavior directly.</p>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="nv">requires</span><span class="w"> </span><span class="s">&quot;evm.k&quot;</span><span class="w"></span>
+
+<span class="nv">module</span><span class="w"> </span><span class="nv">EVM</span><span class="err">-</span><span class="nv">ANALYSIS</span><span class="w"></span>
+<span class="w">    </span><span class="nv">imports</span><span class="w"> </span><span class="nv">EVM</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="section" id="gas-analysis">
+<h2>Gas Analysis<a class="headerlink" href="#gas-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Gas analysis tools will help in determining how much gas to call a
+contract with given a specific input. This can be used to ensure that
+computation will finish without throwing an exception and rolling back
+state. Here we provide a simplistic gas analysis tool (which just
+returns an approximation of the gas used for each basic block). This
+tool should be extended to take advantage of the symbolic execution
+engine so that we can provide proper bounds on the gas used.</p>
+<ul class="simple">
+<li>The mode <code class="docutils literal"><span class="pre">GASANALYZE</span></code> performs gas analysis of the program instead
+of executing normally.</li>
+</ul>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Mode</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;GASANALYZE&quot;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>We’ll need to make summaries of the state which collect information
+about how much gas has been used.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#beginSummary</span></code> appends a new (unfinished) summary entry in the
+<code class="docutils literal"><span class="pre">analysis</span></code> cell under the key <code class="docutils literal"><span class="pre">&quot;gasAnalyze&quot;</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#endSummary</span></code> looks for an unfinished summary entry by the key
+<code class="docutils literal"><span class="pre">&quot;gasAnalyze&quot;</span></code> and performs the substraction necessary to state how
+much gas has been used since the corresponding <code class="docutils literal"><span class="pre">#beginSummary</span></code>.</li>
+</ul>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Summary</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;{&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;}&quot;</span><span class="w"></span>
+<span class="w">                    </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;{&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;==&gt;&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"> </span><span class="s">&quot;}&quot;</span><span class="w"></span>
+<span class="c1">// --------------------------------------------------------</span>
+
+<span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">InternalOp</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;#beginSummary&quot;</span><span class="w"></span>
+<span class="c1">// -------------------------------------</span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#beginSummary</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">.</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"> </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"> </span><span class="nt">&lt;gas&gt;</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="nt">&lt;/gas&gt;</span><span class="w"> </span><span class="nt">&lt;memoryUsed&gt;</span><span class="w"> </span><span class="nv">MEMUSED</span><span class="w"> </span><span class="nt">&lt;/memoryUsed&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;analysis&gt;</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="s">&quot;blocks&quot;</span><span class="w"> </span><span class="p">|-&gt;</span><span class="w"> </span><span class="p">((.</span><span class="nv">List</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">ListItem</span><span class="p">({</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">MEMUSED</span><span class="w"> </span><span class="p">}))</span><span class="w"> </span><span class="nv">REST</span><span class="p">)</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/analysis&gt;</span><span class="w"></span>
+
+<span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">KItem</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;#endSummary&quot;</span><span class="w"></span>
+<span class="c1">// ------------------------------</span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="p">(</span><span class="nv">#end</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">.)</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#endSummary</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"></span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#endSummary</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">.</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"> </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"> </span><span class="nt">&lt;gas&gt;</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="nt">&lt;/gas&gt;</span><span class="w"> </span><span class="nt">&lt;memoryUsed&gt;</span><span class="w"> </span><span class="nv">MEMUSED</span><span class="w"> </span><span class="nt">&lt;/memoryUsed&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;analysis&gt;</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="s">&quot;blocks&quot;</span><span class="w"> </span><span class="p">|-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nv">ListItem</span><span class="p">({</span><span class="w"> </span><span class="nv">PCOUNT1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">GAVAIL1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">MEMUSED1</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">PCOUNT1</span><span class="w"> </span><span class="o">=</span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">GAVAIL1</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">MEMUSED</span><span class="w"> </span><span class="err">-</span><span class="nv">Int</span><span class="w"> </span><span class="nv">MEMUSED1</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="nv">REST</span><span class="p">)</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/analysis&gt;</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>In <code class="docutils literal"><span class="pre">GASANALYZE</span></code> mode, summaries of the state are taken at each
+<code class="docutils literal"><span class="pre">#gasBreaks</span></code> opcode, otherwise execution is as in <code class="docutils literal"><span class="pre">NORMAL</span></code>.</li>
+</ul>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;mode&gt;</span><span class="w"> </span><span class="nv">GASANALYZE</span><span class="w"> </span><span class="nt">&lt;/mode&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#next</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#setMode</span><span class="w"> </span><span class="nv">NORMAL</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#execTo</span><span class="w"> </span><span class="nv">#gasBreaks</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#setMode</span><span class="w"> </span><span class="nv">GASANALYZE</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;program&gt;</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="p">|-&gt;</span><span class="w"> </span><span class="nv">OP</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/program&gt;</span><span class="w"></span>
+<span class="w">     </span><span class="nv">requires</span><span class="w"> </span><span class="nv">notBool</span><span class="w"> </span><span class="p">(</span><span class="nv">OP</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">#gasBreaks</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;mode&gt;</span><span class="w"> </span><span class="nv">GASANALYZE</span><span class="w"> </span><span class="nt">&lt;/mode&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#next</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#endSummary</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#setPC</span><span class="w"> </span><span class="p">(</span><span class="nv">PCOUNT</span><span class="w"> </span><span class="err">+</span><span class="nv">Int</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#setGas</span><span class="w"> </span><span class="mi">1000000000</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#beginSummary</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#next</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&lt;program&gt;</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="p">|-&gt;</span><span class="w"> </span><span class="nv">OP</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/program&gt;</span><span class="w"></span>
+<span class="w">     </span><span class="nv">requires</span><span class="w"> </span><span class="nv">OP</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">#gasBreaks</span><span class="w"></span>
+
+<span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">Set</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;#gasBreaks&quot;</span><span class="w"> </span><span class="p">[</span><span class="nv">function</span><span class="p">]</span><span class="w"></span>
+<span class="c1">// --------------------------------------</span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nv">#gasBreaks</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nv">SetItem</span><span class="p">(</span><span class="nv">JUMP</span><span class="p">)</span><span class="w"> </span><span class="nv">SetItem</span><span class="p">(</span><span class="nv">JUMPI</span><span class="p">)</span><span class="w"> </span><span class="nv">SetItem</span><span class="p">(</span><span class="nv">JUMPDEST</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">   </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">InternalOp</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;#setPC&quot;</span><span class="w">  </span><span class="nv">Int</span><span class="w"></span>
+<span class="w">                       </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;#setGas&quot;</span><span class="w"> </span><span class="nv">Int</span><span class="w"></span>
+<span class="c1">// -----------------------------------</span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#setPC</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w">  </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">.</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"> </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">PCOUNT</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"></span>
+<span class="w">   </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#setGas</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">.</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"> </span><span class="nt">&lt;gas&gt;</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">GAVAIL</span><span class="w"> </span><span class="nt">&lt;/gas&gt;</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#gasAnalyze</span></code> analyzes the gas of a chunk of code by setting up the
+analysis state appropriately and then setting the mode to
+<code class="docutils literal"><span class="pre">GASANALYZE</span></code>.</li>
+</ul>
+<div class="highlight-k"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kd">syntax</span><span class="w"> </span><span class="nv">KItem</span><span class="w"> </span><span class="p">::=</span><span class="w"> </span><span class="s">&quot;#gasAnalyze&quot;</span><span class="w"></span>
+<span class="w"> </span><span class="c1">// ------------------------------</span>
+<span class="w">    </span><span class="kd">rule</span><span class="w"> </span><span class="nt">&lt;k&gt;</span><span class="w"> </span><span class="nv">#gasAnalyze</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nv">#setGas</span><span class="w"> </span><span class="mi">1000000000</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#beginSummary</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#setMode</span><span class="w"> </span><span class="nv">GASANALYZE</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#execute</span><span class="w"> </span><span class="p">~&gt;</span><span class="w"> </span><span class="nv">#endSummary</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="nt">&lt;/k&gt;</span><span class="w"></span>
+<span class="w">         </span><span class="nt">&lt;pc&gt;</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="nt">&lt;/pc&gt;</span><span class="w"></span>
+<span class="w">         </span><span class="nt">&lt;gas&gt;</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">1000000000</span><span class="w"> </span><span class="nt">&lt;/gas&gt;</span><span class="w"></span>
+<span class="w">         </span><span class="nt">&lt;analysis&gt;</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;blocks&quot;</span><span class="w"> </span><span class="p">|-&gt;</span><span class="w"> </span><span class="p">.</span><span class="nv">List</span><span class="p">)</span><span class="w"> </span><span class="nt">&lt;/analysis&gt;</span><span class="w"></span>
+<span class="nv">endmodule</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../krypto/" class="btn btn-neutral float-right" title="Cryptographic Primitives" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../data/" class="btn btn-neutral" title="EVM Words" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The KEVM Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

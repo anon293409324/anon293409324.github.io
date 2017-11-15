@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The EVM Jello Paper &mdash; The EVM Jello Paper 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex/"/>
+        <link rel="search" title="Search" href="search/"/>
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="#"/>
+        <link rel="next" title="EVM Execution" href="evm/"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> The EVM Jello Paper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="evm/">EVM Execution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#evm-programs">EVM Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#precompiled-contracts">Precompiled Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#evm-program-representations">EVM Program Representations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ethereum/">Ethereum Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification/">KEVM Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/">EVM Words</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/#data-structures">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/#parsing-unparsing">Parsing/Unparsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis/">Analysis Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krypto/">Cryptographic Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues/">EVM Design Issues</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">The EVM Jello Paper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>The EVM Jello Paper</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-evm-jello-paper">
+<h1>The EVM Jello Paper<a class="headerlink" href="#the-evm-jello-paper" title="Permalink to this headline">¶</a></h1>
+<p>The Jello Paper is an attempt at defining the EVM semantics using the <a class="reference external" href="https://github.com/anon293409324/evm-semantics">KEVM project</a>.
+Unlike the <a class="reference external" href="http://yellowpaper.io.">Yellow Paper</a>, the Jello Paper is an executable semantics, and can provide a full EVM interpreter
+usable for testing contracts, analyzing gas usage, verifying contracts correct, and a wide range of other tasks as specified in the
+<a class="reference external" href="">[anonymized] technical report on KEVM</a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="evm/">EVM Execution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="evm/#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#modal-semantics">Modal Semantics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#hardware">Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#opcode-execution-cycle">OpCode Execution Cycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="evm/#exceptional-opcodes">Exceptional OpCodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#execution-step">Execution Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#program-counter">Program Counter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#substate-log">Substate Log</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#evm-programs">EVM Programs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="evm/#evm-opcodes">EVM OpCodes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="evm/#internal-operations">Internal Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#invalid-operator">Invalid Operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#stack-manipulations">Stack Manipulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#local-memory">Local Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#expressions">Expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#local-state">Local State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#jump"><code class="docutils literal"><span class="pre">JUMP*</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#stop-and-return"><code class="docutils literal"><span class="pre">STOP</span></code> and <code class="docutils literal"><span class="pre">RETURN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#call-data">Call Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#log-operations">Log Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#ethereum-network-opcodes">Ethereum Network OpCodes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="evm/#account-queries">Account Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#account-storage-operations">Account Storage Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#call-operations">Call Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#account-creation-deletion">Account Creation/Deletion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#precompiled-contracts">Precompiled Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="evm/#memory-consumption">Memory Consumption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#execution-gas">Execution Gas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evm/#fee-schedule-from-c-implementation">Fee Schedule from C++ Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="evm/#defualt-schedule">Defualt Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#frontier-schedule">Frontier Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#homestead-schedule">Homestead Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#eip150-schedule">EIP150 Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#eip158-schedule">EIP158 Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#byzantium-schedule">Byzantium Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="evm/#constantinople-schedule">Constantinople Schedule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evm/#evm-program-representations">EVM Program Representations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="evm/#disassembler">Disassembler</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ethereum/">Ethereum Simulations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ethereum/#driving-execution">Driving Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ethereum/#running-tests">Running Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ethereum/#state-manipulation">State Manipulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ethereum/#clearing-state">Clearing State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ethereum/#loading-state">Loading State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ethereum/#checking-state">Checking State</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="verification/">KEVM Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="verification/#sum-to-n">Sum to N</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification/#hacker-gold-hkg-token-smart-contract">Hacker Gold (HKG) Token Smart Contract</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data/">EVM Words</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/#primitives">Primitives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="data/#empty-account">Empty Account</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data/#symbolic-words">Symbolic Words</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="data/#arithmetic">Arithmetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#comparison-operators">Comparison Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#bitwise-operators">Bitwise Operators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data/#data-structures">Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/#word-stack">Word Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#byte-arrays">Byte Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#addresses">Addresses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#word-map">Word Map</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data/#parsing-unparsing">Parsing/Unparsing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/#parsing">Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#unparsing">Unparsing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data/#encoding">Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/#decoding">Decoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="analysis/">Analysis Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="analysis/#gas-analysis">Gas Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="krypto/">Cryptographic Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues/">EVM Design Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="issues/#issues-with-description-of-evm">Issues with description of EVM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues/#issues-with-design-of-evm">Issues with design of EVM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues/#recommendations-for-the-future">Recommendations for the Future</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="issues/#deterministic-vs-nondeterministic-and-proof-of-work-and-scalability">Deterministic vs. Nondeterministic (and Proof of Work and Scalability)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="issues/#termination">Termination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="issues/#language-independence">Language Independence</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="evm/" class="btn btn-neutral float-right" title="EVM Execution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The KEVM Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

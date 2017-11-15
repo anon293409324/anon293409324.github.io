@@ -1,0 +1,169 @@
+The EVM Jello Paper
+*******************
+
+The Jello Paper is an attempt at defining the EVM semantics using the
+KEVM project. Unlike the Yellow Paper, the Jello Paper is an
+executable semantics, and can provide a full EVM interpreter usable
+for testing contracts, analyzing gas usage, verifying contracts
+correct, and a wide range of other tasks as specified in the technical
+report on KEVM.
+
+   [image: jiggling jello][image]*Because Jello has substance and
+   flexibility*
+
+* EVM Execution
+
+  * Configuration
+
+  * Modal Semantics
+
+  * Hardware
+
+  * OpCode Execution Cycle
+
+    * Exceptional OpCodes
+
+    * Execution Step
+
+    * Program Counter
+
+    * Substate Log
+
+* EVM Programs
+
+  * EVM OpCodes
+
+    * Internal Operations
+
+    * Invalid Operator
+
+    * Stack Manipulations
+
+    * Local Memory
+
+    * Expressions
+
+    * Local State
+
+    * "JUMP*"
+
+    * "STOP" and "RETURN"
+
+    * Call Data
+
+    * Log Operations
+
+  * Ethereum Network OpCodes
+
+    * Account Queries
+
+    * Account Storage Operations
+
+    * Call Operations
+
+    * Account Creation/Deletion
+
+* Precompiled Contracts
+
+* Ethereum Gas Calculation
+
+  * Memory Consumption
+
+  * Execution Gas
+
+  * Fee Schedule from C++ Implementation
+
+    * Defualt Schedule
+
+    * Frontier Schedule
+
+    * Homestead Schedule
+
+    * EIP150 Schedule
+
+    * EIP158 Schedule
+
+    * Byzantium Schedule
+
+    * Constantinople Schedule
+
+* EVM Program Representations
+
+  * Disassembler
+
+* Ethereum Simulations
+
+  * Driving Execution
+
+  * Running Tests
+
+    * State Manipulation
+
+  * Clearing State
+
+  * Loading State
+
+  * Checking State
+
+* KEVM Verification
+
+  * Sum to N
+
+  * Hacker Gold (HKG) Token Smart Contract
+
+* EVM Words
+
+  * Primitives
+
+    * Empty Account
+
+    * Symbolic Words
+
+  * Arithmetic
+
+  * Comparison Operators
+
+  * Bitwise Operators
+
+* Data Structures
+
+  * Word Stack
+
+  * Byte Arrays
+
+  * Addresses
+
+  * Word Map
+
+* Parsing/Unparsing
+
+  * Parsing
+
+  * Unparsing
+
+* Recursive Length Prefix (RLP)
+
+  * Encoding
+
+  * Decoding
+
+* Analysis Tools
+
+  * Gas Analysis
+
+* Cryptographic Primitives
+
+* EVM Design Issues
+
+  * Issues with description of EVM
+
+  * Issues with design of EVM
+
+  * Recommendations for the Future
+
+    * Deterministic vs. Nondeterministic (and Proof of Work and
+      Scalability)
+
+    * Termination
+
+    * Language Independence
